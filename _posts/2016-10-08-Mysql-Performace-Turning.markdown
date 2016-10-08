@@ -18,9 +18,11 @@ MySQLTuner-perl
 安装
 ----
 - 新建一个目录
+
 ```
 mkdir mysqltuner
 ```
+
 - 下载
 ```
 $ wget http://mysqltuner.pl/ -O mysqltuner.pl
@@ -52,6 +54,7 @@ $ ./mysqltuner.pl --host targetDNS_IP --user admin_user --pass admin_password --
 输出
 ---
 如果执行OK，将会得到以下主要输出：
+
 ```
 -------- Recommendations ---------------------------------------------------------------------------
 General recommendations:
