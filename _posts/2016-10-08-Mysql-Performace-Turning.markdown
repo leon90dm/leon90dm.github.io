@@ -55,7 +55,7 @@ $ ./mysqltuner.pl --host targetDNS_IP --user admin_user --pass admin_password --
 ---
 如果执行OK，将会得到以下主要输出：
 
-```
+```bash
 -------- Recommendations ---------------------------------------------------------------------------
 General recommendations:
     Run OPTIMIZE TABLE to defragment tables for better performance
