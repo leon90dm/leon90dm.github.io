@@ -19,18 +19,21 @@ MySQLTuner-perl
 ----
 - 新建一个目录
 
-```
+```bash
 mkdir mysqltuner
 ```
 
 - 下载
-```
+
+```bash
 $ wget http://mysqltuner.pl/ -O mysqltuner.pl
 $ wget https://raw.githubusercontent.com/major/MySQLTuner-perl/master/basic_passwords.txt -O basic_passwords.txt
 $ wget https://raw.githubusercontent.com/major/MySQLTuner-perl/master/vulnerabilities.csv -O vulnerabilities.csv
 ```
+
 下载之后会在当前目录下面得到以下文件
-```
+
+```bash
 $ ls
 basic_passwords.txt mysqltuner.pl       vulnerabilities.csv
 ```
@@ -38,17 +41,23 @@ basic_passwords.txt mysqltuner.pl       vulnerabilities.csv
 运行
 ---
 把`mysqltuner.pl`加上可执行权限
-```
+
+```bash
 chmod +x mysqltuner.pl
 ```
+
 - 本地执行
-```
+
+```bash
 $ ./mysqltuner.pl --user root --pass root
 ```
+
 - 远程执行
-```
+
+```bash
 $ ./mysqltuner.pl --host targetDNS_IP --user admin_user --pass admin_password --forcemem 100
 ```
+
 *注意*，远程连接需要指定`--forcemem`参数，这个参数后面接一个数字表示分配的内存大小单位是M，`--forcemem 100`表示分配100M
 
 输出
