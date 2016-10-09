@@ -8,6 +8,7 @@ header-img: "img/post-bg-alitrip.jpg"
 catalog: true
 tags:
     - Java
+    - UML
 ---
 
 下面介绍使用[Graphviz](http://www.gravizo.com/)在Markdown中画UML图
