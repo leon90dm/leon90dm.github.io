@@ -144,9 +144,9 @@ final Object[] two = receiveN(duration,2);
 ExpectMsg需要重写match方法，它的作用很单一，就是收到match之后的消息之后通过get就会返回。
 
 ```
-new JavaTestKit(system) {{
+new JavaTestKit(system) {
+{
   getRef().tell(42, ActorRef.noSender());
-  //不要把这个实例化放在{}外面
   final String out = new ExpectMsg<String>("match hint") {
       protected String match(Object in) {
         if (in instanceof Integer) {
@@ -157,14 +157,16 @@ new JavaTestKit(system) {{
       }
     }.get(); // this extracts the received message
   assertEquals("match", out);
-}};
+}
+};
 ```
 
 ####ReceiveWhile<T>
 这个也需要重写match方法，只是它会连续接收match通过的消息，知道出现不符合的消息才终止，最后get返回的是一个接收到消息的数组。
 
 ```java
-new JavaTestKit(system) {{
+new JavaTestKit(system) {
+{
   getRef().tell(42, ActorRef.noSender());
   getRef().tell(43, ActorRef.noSender());
   getRef().tell("hello", ActorRef.noSender());
@@ -181,14 +183,16 @@ new JavaTestKit(system) {{
     }.get(); // this extracts the received messages
   assertArrayEquals(new String[] {"42", "43"}, out);
   expectMsgEquals("hello");
-}};
+}
+};
 ```
 
 ####AwaitCond
 这个是一个条件等，需要重写cond方法，等待固定的间隔去调用cond()如果返回true，则跳过等待，否则继续等待直到超过总等待时间。
 
 ```java
-new JavaTestKit(system) {{
+new JavaTestKit(system) {
+{
   getRef().tell(42, ActorRef.noSender());
   new AwaitCond(
         duration("1 second"),  // maximum wait time
@@ -200,14 +204,16 @@ new JavaTestKit(system) {{
       return msgAvailable();
     }
   };
-}};
+}
+};
 ```
 
 ####AwaitAssert
 这个是一个条件检查，需要重写check方法，等待固定的间隔去调用check()直到超过总时间。
 
 ```java
-new JavaTestKit(system) {{
+new JavaTestKit(system) {
+{
   getRef().tell(42, ActorRef.noSender());
   new AwaitAssert(
         duration("1 second"),  // maximum wait time
@@ -218,14 +224,16 @@ new JavaTestKit(system) {{
       assertEquals(msgAvailable(), true);
     }
   };
-}};
+}
+};
 ```
 
 ####IgnoreMsg
 这个是一个过滤器，需要重写ignore方法，它会过滤所有ignore返回true的消息。
 
 ```java
-new JavaTestKit(system) {{
+new JavaTestKit(system) {
+{
   // 忽略所有的字符串类型的消息
   new IgnoreMsg() {
     protected boolean ignore(Object msg) {
@@ -239,7 +247,8 @@ new JavaTestKit(system) {{
   ignoreNoMsg();
   getRef().tell("hello", ActorRef.noSender());
   expectMsgEquals("hello");
-}};
+}
+};
 ```
 
 ####Expecting Log Messages
@@ -247,7 +256,8 @@ new JavaTestKit(system) {{
 首先在Classpath下的配置文件 `application.conf` 中加上`akka.loggers = [akka.testkit.TestEventListener]`
 
 ```java
-new JavaTestKit(system) {{
+new JavaTestKit(system) {
+{
   assertEquals("TestKitDocTest", system.name());
   final ActorRef victim = system.actorOf(Props.empty(), "victim");
  
@@ -259,14 +269,16 @@ new JavaTestKit(system) {{
   }.from("akka://TestKitDocTest/user/victim").occurrences(1).exec();
  
   assertEquals(42, result);
-}};
+}
+};
 ```
 
 ####Timing Assertions
 Within非常的方便，构造方法传(min,max)意思要求在min-max这段时间内，重写的run方法必须执行完，否则就抛出异常。
 
 ```java
-new JavaTestKit(system) {{
+new JavaTestKit(system) {
+{
   getRef().tell(42, ActorRef.noSender());
   new Within(Duration.Zero(), Duration.create(1, "second")) {
     // do not put code outside this method, will run afterwards
@@ -274,7 +286,8 @@ new JavaTestKit(system) {{
       assertEquals((Integer) 42, expectMsgClass(Integer.class));
     }
   };
-}};
+}
+};
 ```
 
 ####时间放大
@@ -290,34 +303,39 @@ public Duration dilated(Duration d) {
 使用JavaTestKit可以watch一个Actor然后即可收到Terminated消息
 
 ```java
-new JavaTestKit(system) {{
+new JavaTestKit(system) {
+{
   final JavaTestKit probe = new JavaTestKit(system);
   probe.watch(target);
   target.tell(PoisonPill.getInstance(), ActorRef.noSender());
   final Terminated msg = probe.expectMsgClass(Terminated.class);
   assertEquals(msg.getActor(), target);
-}};
+}
+};
 ```
 
 ####Replying to Messages Received by Probes
 JavaTestKit提供reply方法可以获取到最后一次发送给probe的actor，并且给它发消息。
 
 ```java
-new JavaTestKit(system) {{
+new JavaTestKit(system) {
+{
   final JavaTestKit probe = new JavaTestKit(system);
   probe.getRef().tell("hello", getRef());
   probe.expectMsgEquals("hello");
   probe.reply("world");
   expectMsgEquals("world");
   assertEquals(probe.getRef(), getLastSender());
-}};
+}
+};
 ```
 
 ####Auto-Pilot
 JavaTestKit可以设置一个AutoPilot，当probe收到消息之后AutoPilot的run方法就会被回调，完成之后需要返回下一次接收消息处理的AutoPilot，如果返回`noAutoPilot()`，则表示probe不在接收消息。
 
 ```java
-new JavaTestKit(system) {{
+new JavaTestKit(system) {
+{
   final JavaTestKit probe = new JavaTestKit(system);
   // install auto-pilot
   probe.setAutoPilot(new TestActor.AutoPilot() {
@@ -332,9 +350,10 @@ new JavaTestKit(system) {{
   // ... but then the auto-pilot switched itself off
   probe.getRef().tell("world", getRef());
   expectNoMsg();
-}};
+}
+};
 ```
 
 Reference
 ---
-http://doc.akka.io/docs/akka/2.4.11/java/testing.html
+[http://doc.akka.io/docs/akka/2.4.11/java/testing.html](http://doc.akka.io/docs/akka/2.4.11/java/testing.html)
