@@ -140,7 +140,7 @@ expectNoMsg(duration);
 final Object[] two = receiveN(duration,2);
 ```
 
-####ExpectMsg<T>
+### ExpectMsg<T>
 ExpectMsg需要重写match方法，它的作用很单一，就是收到match之后的消息之后通过get就会返回。
 
 ```
@@ -161,7 +161,7 @@ new JavaTestKit(system) {
 };
 ```
 
-####ReceiveWhile<T>
+### ReceiveWhile<T>
 这个也需要重写match方法，只是它会连续接收match通过的消息，知道出现不符合的消息才终止，最后get返回的是一个接收到消息的数组。
 
 ```java
@@ -187,7 +187,7 @@ new JavaTestKit(system) {
 };
 ```
 
-####AwaitCond
+### AwaitCond
 这个是一个条件等，需要重写cond方法，等待固定的间隔去调用cond()如果返回true，则跳过等待，否则继续等待直到超过总等待时间。
 
 ```java
@@ -208,7 +208,7 @@ new JavaTestKit(system) {
 };
 ```
 
-####AwaitAssert
+### AwaitAssert
 这个是一个条件检查，需要重写check方法，等待固定的间隔去调用check()直到超过总时间。
 
 ```java
@@ -228,7 +228,7 @@ new JavaTestKit(system) {
 };
 ```
 
-####IgnoreMsg
+### IgnoreMsg
 这个是一个过滤器，需要重写ignore方法，它会过滤所有ignore返回true的消息。
 
 ```java
@@ -251,7 +251,7 @@ new JavaTestKit(system) {
 };
 ```
 
-####Expecting Log Messages
+### Expecting Log Messages
 将akka的loggers配置加上`akka.testkit.TestEventListener`，即可利用`EventFilter`来进行日志的断言。
 首先在Classpath下的配置文件 `application.conf` 中加上`akka.loggers = [akka.testkit.TestEventListener]`
 
@@ -273,7 +273,7 @@ new JavaTestKit(system) {
 };
 ```
 
-####Timing Assertions
+### Timing Assertions
 Within非常的方便，构造方法传(min,max)意思要求在min-max这段时间内，重写的run方法必须执行完，否则就抛出异常。
 
 ```java
@@ -290,7 +290,7 @@ new JavaTestKit(system) {
 };
 ```
 
-####时间放大
+### 时间放大
 JavaTestKit的dilated方法可以把一个Duration进行放大，放的原理是：获取`application.conf`中`akka.test.timefactor = 2`的值乘以原本的Duration。
 
 ```java
@@ -299,7 +299,7 @@ public Duration dilated(Duration d) {
   }
 ```
 
-####Watching Other Actors from Probes
+### Watching Other Actors from Probes
 使用JavaTestKit可以watch一个Actor然后即可收到Terminated消息
 
 ```java
@@ -314,7 +314,7 @@ new JavaTestKit(system) {
 };
 ```
 
-####Replying to Messages Received by Probes
+### Replying to Messages Received by Probes
 JavaTestKit提供reply方法可以获取到最后一次发送给probe的actor，并且给它发消息。
 
 ```java
@@ -330,7 +330,7 @@ new JavaTestKit(system) {
 };
 ```
 
-####Auto-Pilot
+### Auto-Pilot
 JavaTestKit可以设置一个AutoPilot，当probe收到消息之后AutoPilot的run方法就会被回调，完成之后需要返回下一次接收消息处理的AutoPilot，如果返回`noAutoPilot()`，则表示probe不在接收消息。
 
 ```java
