@@ -117,5 +117,8 @@ friends: [
     },{
         title: "前端神盾局",
         href: "http://wepiaofei.github.io/blog/"
+    },{
+        title: "炫技何樑大师",
+        href: "http://dunnohe.github.io/"
     }
 ]

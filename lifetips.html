@@ -1,0 +1,79 @@
+---
+title: Life Tips
+layout: default
+description: Life is more than you can just stay aside
+header-img: "img/tag-bg.jpg"
+tips:
+ - 对于生命而言，接纳才是最好的温柔，无论是接纳一个人的出现，还是接纳一个人的从此不见！
+---
+
+<!-- Page Header -->
+<header class="intro-header" style="background-image: url('{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="site-heading" id="tag-heading">
+                    <h1>{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}</h1>
+                    <span class="subheading">{{ page.description }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<div class="container">
+	<div class="row">
+		<div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+
+            <!--<blockquote class="tag-comments">
+                标签命名规范：
+                    <li>行业观察、职位、公司优先使用中文</li>
+                    <li>外国产品、术语优先使用英文</li>
+            </blockquote>-->
+
+            <!-- 标签列表 tag[0]是标签名，tag[1]是包含这个tag的post的一个列表-->
+			{% for tip in page.tips %}
+			<div class="one-tag-list">
+			  	<span class="fa fa-tag listing-seperator">
+                    <span class="tag-text">{{ tip }}</span>
+                </span>
+			</div>
+			{% endfor %}
+
+            {% if site.duoshuo_username %}
+            <!-- 多说评论框 start -->
+            <div class="comment">
+                <div class="ds-thread"
+                     data-thread-key="{{page.url}}"
+                     data-title="{{page.title}}"
+                     data-url="{{site.url}}{{site.baseurl}}{{page.url}}" >
+                </div>
+            </div>
+            <!-- 多说评论框 end -->
+            {% endif %}
+        </div>
+	</div>
+
+</div>
+
+{% if site.duoshuo_username %}
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    // dynamic User by Hux
+    var _user = '{{site.duoshuo_username}}';
+
+    // duoshuo comment query.
+    var duoshuoQuery = {short_name: _user };
+    (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0]
+        || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+</script>
+<!-- 多说公共JS代码 end -->
+{% endif %}
+
