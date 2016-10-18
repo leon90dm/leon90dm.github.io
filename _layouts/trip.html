@@ -1,0 +1,59 @@
+---
+layout: default
+---
+<!-- Page Header -->
+<header class="intro-header" style="background-image: url('{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="site-heading" id="tag-heading">
+                    <h1>{% if page.tripTo %}{{ page.tripTo }}{% else %}{{ site.title }}{% endif %}</h1>
+                    <span class="subheading">{{ page.tripDesc }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+
+            {{ content }}
+
+            {% if site.duoshuo_username %}
+            <!-- 多说评论框 start -->
+            <div class="comment">
+                <div class="ds-thread"
+                     data-thread-key="{{page.url}}"
+                     data-title="{{page.title}}"
+                     data-url="{{site.url}}{{site.baseurl}}{{page.url}}" >
+                </div>
+            </div>
+            <!-- 多说评论框 end -->
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+{% if site.duoshuo_username %}
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    // dynamic User by Hux
+    var _user = '{{site.duoshuo_username}}';
+
+    // duoshuo comment query.
+    var duoshuoQuery = {short_name: _user };
+    (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0]
+        || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+</script>
+<!-- 多说公共JS代码 end -->
+{% endif %}
