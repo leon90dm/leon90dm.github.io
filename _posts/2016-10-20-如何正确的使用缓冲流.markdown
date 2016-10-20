@@ -1,0 +1,114 @@
+---
+layout:     post
+title:      "BufferedInputStream&GZIPInputStream"
+subtitle:   "如何正确的使用缓存输入流"
+date:       2016-10-19
+author:     "BilboDai"
+header-img: "img/post-bg-os-metro.jpg"
+catalog: true
+tags:
+    - Java
+---
+
+概述
+---
+很多人总是喜欢将InputStream包装成BufferedInputStream，比如：
+
+```
+final InputStream is = new BufferedInputStream( new FileInputStream( file ) );
+```
+
+而往往忘记使用Buffering的真正含义（减少从输入设备读的次数）。至于什么时候应该使用BufferedInputStream而什么时候不用的规则很简单：如果数据块足够大（100K+）并且你本身就可以按照任意长度的块来处理，那么你就不需要使用BufferedInputStream。最简单的例子就是文件拷贝：
+
+```
+public static void copyFile( final File from, final File to ) throws IOException {
+    final InputStream is = new FileInputStream( from );
+    try
+    {
+        final OutputStream os = new FileOutputStream( to );
+        try
+        {
+            final byte[] buf = new byte[ 8192 ];
+            int read = 0;
+            while ( ( read = is.read( buf ) ) != -1 )
+            {
+                os.write( buf, 0, read );
+            }
+        }
+        finally {
+            os.close();
+        }
+    }
+    finally {
+        is.close();
+    }
+}
+```
+
+- 文件拷贝的性能受系统写缓存的影响。
+- 一般使用Java NIO（**FileChannel.transferTo 或者 transferFrom**）来完成文件的拷贝，这样可以免去系统用户模式和核心模式之间不断来回的切换，减少CPU的占用周期，降低Load值。
+
+```
+private static void copyFileNio( final File from, final File to ) throws IOException {
+    final RandomAccessFile inFile = new RandomAccessFile( from, "r" );
+    try
+    {
+        final RandomAccessFile outFile = new RandomAccessFile( to, "rw" );
+        try
+        {
+            final FileChannel inChannel = inFile.getChannel();
+            final FileChannel outChannel = outFile.getChannel();
+            long pos = 0;
+            long toCopy = inFile.length();
+            while ( toCopy > 0 )
+            {
+                final long bytes = inChannel.transferTo( pos, toCopy, outChannel );
+                pos += bytes;
+                toCopy -= bytes;
+            }
+        }
+        finally {
+            outFile.close();
+        }
+    }
+    finally {
+        inFile.close();
+    }
+}
+```
+
+BufferedInputStream
+---
+BufferedInputStream默认的缓冲区大小为8192字节，这个大小即是每次从设备中读取的数据块的大小，因此有时候读取一些大文件的时候可以适当提高到64K(65536)甚至512K、2M，这样可以进一步减少从设备读的次数。许多专家建议缓冲区大小的值设置为4096的倍数。所以不要把缓冲区大小设置为125000，设置它为131072（128K）
+
+GZIPInputStream
+---
+GZIPInputStream通常是用来读取gzip文件
+
+    final InputStream is = new GZIPInputStream( new BufferedInputStream( new FileInputStream( file ) ) );
+
+由于GZIPInputStream本身已经有缓冲区了，因此在包装一个BufferedInputStream是多余的，默认的大小是512字节，真实情况下应该设置一个比512更大的值：
+
+    final InputStream is = new GZIPInputStream( new FileInputStream( file ), 65536 );
+
+BufferedInputStream.available
+---
+BufferedInputStream.available()使用不当可能会有性能问题，这个方法标准的实现是会调用底层的InputStream的available()方法来获取还有多少可用的数据，但是绝大多数情况下我们希望知道的只是BufferedInputStream自身的缓存中是否还有数据，如果还有数据就不需要触发一次底层设备的查询调用，以提供性能。
+幸运的是，BufferedInputStream并不是final class，我们可以继承之后重写available方法。Java6中还有一个bug，就是查询返回的值如果大于Integer.MAX_VALUE之后，available方法会返回一个负数。Java7已经修复了这个bug。
+
+```
+public class FasterBufferedInputStream extends BufferedInputStream
+{
+    public FasterBufferedInputStream(InputStream in, int size) {
+        super(in, size);
+    }
+ 
+    //This method returns positive value if something is available, otherwise it will return zero.
+    public int available() throws IOException {
+        if (in == null)
+            throw new IOException( "Stream closed" );
+        final int n = count - pos;
+        return n > 0 ? n : in.available();
+    }
+}
+```
