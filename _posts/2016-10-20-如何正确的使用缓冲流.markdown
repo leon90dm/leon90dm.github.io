@@ -2,9 +2,9 @@
 layout:     post
 title:      "BufferedInputStream&GZIPInputStream"
 subtitle:   "如何正确的使用缓存输入流"
-date:       2016-10-19
+date:       2016-10-20
 author:     "BilboDai"
-header-img: "img/post-bg-os-metro.jpg"
+header-img: "img/post-bg-rwd.jpg"
 catalog: true
 tags:
     - Java
