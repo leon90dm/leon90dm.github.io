@@ -1,0 +1,77 @@
+---
+layout:     post
+title:      "java.lang.String's Changes in java7"
+subtitle:   "java.lang.String's Changes in java7"
+date:       2016-10-28
+author:     "BilboDai"
+header-img: "img/post-bg-rwd.jpg"
+catalog: true
+tags:
+    - Java
+---
+
+Sharing an underlying char[]
+---
+早期的String实现中有4个非静态的字段。
+
+```
+char[] value; //字符值
+int offset; //偏移量
+int count; //长度
+int hash; // 哈希值
+```
+
+在绝大多数情况下，String都是（offset=0,count=value.length)，唯一的例外就是在调用`String.substring()`方法的时候。`String.substring()`创建一个新的字符串实例，但是和原来的字符串实例共享`char[] value`。这样做可以：
+
+- 节省内存空间
+- 效率为O(1)（常数时间复杂度）
+
+但是在某些情况下，这种共享会导致内存泄露，考虑这样一种场景，你想获取和长久保留某个很长的字符串比如S1的某一小部分，你调用了`String.substring()`获得了S2，虽然S1废弃掉了，但是底层的`char[] value`依然存在并且久而久之就会导致OOM。这也是一种比较含蓄的内存泄露。
+
+从Java 1.7.0_06之后, `offset`和`count`字段被移除了。这就意味着再也无法在共享底层的`char[] value`了。因此：
+
+- 可以忘记上面提到的内存泄露
+- `String.substring`变成了O(n)复杂度
+
+Hashing logic Changes
+---
+在Java 7u6+之后java8之前，String class引入了另外一种hash算法，Oracle提出说使用这种算法可以提高HashMap, Hashtable, HashSet, LinkedHashMap, LinkedHashSet, WeakHashMap and ConcurrentHashMap的性能，但是只是以实现性形式加入的，默认是关闭的。
+
+如果要打开这个开关就需要设置一个`jdk.map.althashing.threshold`的系统参数，这个参数的默认值是-1，因此你需要设置一个正整数。这个值是collection的大小阈值，当大于这个阈值之后，一个新的hash算法将被使用（注意：只有在没有更多空闲空间的时候hash算法才会改变）例如：collection现在的大小是160，阈值是`jdk.map.althashing.threshold=200`，那么当collection大小约为320的时候hash算法就会改变。
+
+String现在有一个`hash32()`方法，结果被缓存在`hash32`字段中
+
+```
+int hash32() {
+        int h = hash32;
+        if (0 == h) {
+           // harmless data race on hash32 here.
+           h = sun.misc.Hashing.murmur3_32(HASHING_SEED, value, 0, value.length);
+
+           // ensure result is not zero to avoid recalcing
+           h = (0 != h) ? h : 1;
+
+           hash32 = h;
+        }
+
+        return h;
+    }
+```
+
+这个方法最大的不同就是同样的一个字符串在不同的JVM中hash值，事实上程序每次运行都不大一样。String的`hash32()`方法不是公开的，但可以通过`sun.misc.Hashing.stringHash32(String)`得到。
+
+New Hashing is bad in multithreaded code
+---
+从java7build6到build40（排除）Oracle写了一个bug。涉及HashMap, Hashtable, HashSet, LinkedHashMap, LinkedHashSet and WeakHashMap中又一个字段：
+
+```
+/**
+ * A randomizing value associated with this instance that is applied to
+ * hash code of keys to make hash collisions harder to find.
+ */
+transient final int hashSeed = sun.misc.Hashing.randomHashSeed(this);
+```
+
+使用了`java.util.Random.nextInt()`，而Random使用了AtomicLong，我们知道AtomicLong在适用于低、中等并发环境下而高并发环境下性能非常的低。
+
+Java 7u40+之后在HashMap and Hashtable修复了这个问题，唯一没有修复的就是WeakHashMap。但是WeakHashMap上面情况的使用场景几乎没有。
