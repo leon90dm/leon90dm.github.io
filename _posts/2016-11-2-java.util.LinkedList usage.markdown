@@ -1,0 +1,83 @@
+---
+layout:     post
+title:      "java.util.LinkedList usage"
+subtitle:   "java.util.LinkedList usage"
+date:       2016-11-2
+author:     "BilboDai"
+header-img: "img/post-bg-rwd.jpg"
+catalog: true
+tags:
+    - Java
+---
+
+概述
+---
+一般在关注性能的地方都不推荐使用LinkedList，但是某些场景确实是需要。
+LinkedList使用每个节点中包含了指向前面和后面节点的引用。这样可以让add/remove/update节点的操作非常的快。但仅限于：
+
+- 节点是首节点或者最尾节点
+- 你需要用ListIterator向前或者向后遍历元素
+
+其他情况下，修改list需要的时间复杂度都是O(n)。查询某个元素依然也是O(n)。
+从目前来看，只有两种情况下可以使用LinkedList:
+
+1. 实现一个FIFO buffer，不需要在链表中间位置add/remove元素(或者很少这样做)。但尽管如此，还是请考虑使用`java.util.ArrayDeque`替代，因为它同样优化了从head/tail进行修改的效率。
+2. 频繁需要从链表的中间位置add/remove元素
+
+LinkedList vs ArrayDeque as FIFO buffer
+---
+预先把list进行填充然后进行Adding/Removing操作
+```
+final int PREFILL_COUNT = 100_000;
+final int LOOP_COUNT = 100_000_000;
+final LinkedList<Integer> lst = new LinkedList<Integer>();
+final Integer val = 1;
+for ( int i = 0; i < PREFILL_COUNT; ++i )
+    lst.add( 35 );
+//start measuring time here<br/>
+for ( int i = 0; i < LOOP_COUNT; ++i )
+{
+    for ( int j = 0; j < 5; ++j )
+        lst.addFirst( val );
+    for ( int j = 0; j < 5; ++j )
+        lst.removeLast();
+}
+```
+
+| java\预填充数        | LL-10   |  LL-100K  | LL-1M |AQ-10|AQ-100K|AQ-1M|
+| --------   | -----:  | :----:  |:----:  |:----:  |:----:  |
+| java6     | 7.533sec |   7.879sec     |9.461sec|2.323sec|2.422sec|2.446sec|
+| java7     |  6.004sec   |   6.493sec   |7.945sec|2.035sec|2.160sec|2.343sec|
+
+测试结果比较有趣，随着处理数量的增加，LinkedList的效率并没有多大的变化。
+
+如何优雅的使用LinkedList
+---
+LinkedList只能提供次序性的访问每个元素而不是随机访问。这也是为什么所有的list的算法都依赖于iterators。
+
+#### 不要使用add(int)/get(int)来增加或者迭代LinkedList
+如下代码，效率非常的低。大约需要6s才能完成。
+
+```
+final List<Integer> lst = new LinkedList<Integer>();
+for ( int i = 0; i < 100000; ++i )
+    lst.add( i );
+long sum = 0;
+for ( int i = 0; i < 100000; ++i )
+    sum += lst.get( i );
+```
+
+只有当访问/删除第一个或者最后一个元素的时候使用。
+
+#### removeFirst/pollFirst
+LinkedList不仅是一个List，也是一个Queue。
+
+```
+public T next()
+{
+    if ( lst.isEmpty() )
+        return null;
+    return lst.removeFirst();
+}
+```
+这段代码等同于`LinkedList.pollFirst()`正确的方法可以节省一次check并且代码更整洁。
