@@ -27,6 +27,7 @@ LinkedList使用每个节点中包含了指向前面和后面节点的引用。�
 LinkedList vs ArrayDeque as FIFO buffer
 ---
 预先把list进行填充然后进行Adding/Removing操作
+
 ```
 final int PREFILL_COUNT = 100_000;
 final int LOOP_COUNT = 100_000_000;
