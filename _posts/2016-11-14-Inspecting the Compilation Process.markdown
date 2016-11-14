@@ -50,19 +50,12 @@ timestamp compile_id COMPILE SKIPPED: reason
 下面是一个编译日志的样例：
 
 ```
- 28015  850
- 28179  905  s
- 28226   25 %
- 28244  935
- 29929  939
-106805 1568   !
-net.sdo.StockPrice::getClosingPrice (5 bytes)
-net.sdo.StockPriceHistoryImpl::process (248 bytes)
-net.sdo.StockPriceHistoryImpl::<init> @ 48 (156 bytes)
-net.sdo.MockStockPriceEntityManagerFactory$\
-    MockStockPriceEntityManager::find (507 bytes)
-net.sdo.StockPriceHistoryImpl::<init> (156 bytes)
-net.sdo.StockServlet::processRequest (197 bytes)
+ 28015  850  net.sdo.StockPrice::getClosingPrice (5 bytes)
+ 28179  905  s net.sdo.StockPriceHistoryImpl::process (248 bytes)
+ 28226   25 % net.sdo.StockPriceHistoryImpl::<init> @ 48 (156 bytes)
+ 28244  935  net.sdo.MockStockPriceEntityManagerFactory$MockStockPriceEntityManager::find (507 bytes)
+ 29929  939  net.sdo.StockPriceHistoryImpl::<init> (156 bytes)
+106805 1568   ! net.sdo.StockServlet::processRequest (197 bytes)
 ```
 
 Inspecting Compilation with jstat
@@ -74,15 +67,16 @@ Inspecting Compilation with jstat
 ```
 % jstat -compiler 5003
 Compiled Failed Invalid Time FailedType FailedMethod
-206 0 0 1.97 0
+    206     0       0   1.97    0
 ```
 
 - -printcompilation
 
 ```
-% jstat -printcompilation 5003 1000 Compiled Size Type Method
-           207     64    1 java/lang/CharacterDataLatin1 toUpperCase
-           208      5    1 java/math/BigDecimal$StringBuilderHelper getCharArray
+% jstat -printcompilation 5003 1000 
+Compiled Size Type Method
+   207     64    1 java/lang/CharacterDataLatin1 toUpperCase
+   208      5    1 java/math/BigDecimal$StringBuilderHelper getCharArray
 ```
 
 但jstat得到的信息不是特别的全面。
