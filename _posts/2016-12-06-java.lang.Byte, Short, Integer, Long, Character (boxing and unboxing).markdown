@@ -1,0 +1,67 @@
+---
+layout:     post
+title:      "java.lang.Byte, Short, Integer, Long, Character (boxing and unboxing)"
+subtitle:   "java.lang.Byte, Short, Integer, Long, Character (boxing and unboxing)"
+date:       2016-12-06
+author:     "BilboDai"
+header-img: "img/post-bg-rwd.jpg"
+catalog: true
+tags:
+    - Java
+---
+
+Boxing是将原始类型转换为`java.lang.Number`的子类`(Java.lang.Byte, Short, Integer, Long, Float, Double)`的过程，Boxing是通过`valueOf`方法完成的。
+
+```
+static Integer valueOf( int i )
+```
+
+Unboxing可以通过`java.lang.Number`定义的方法转换为它所有的子类的原始类型
+
+```
+public abstract int intValue();
+public abstract long longValue();
+public abstract float floatValue();
+public abstract double doubleValue();
+public byte byteValue() {
+    return (byte)intValue();
+}
+public short shortValue() {
+    return (short)intValue();
+}
+```
+
+# Implications on performance
+
+把字符串转换为原始类型的通常都在纠结 `parse*(String)` 或者 `valueOf(String)` 答案应该是使用`parse*(String)`更好，`valueOf(String)`会返回一个对象（即使这个对象可能会被缓存）
+
+Number的子类调用`valueOf(primitive_type)`使用了缓存，-128到127（都包括）之间的Byte, Short, Integer, Long 类型的数字都被缓存了。
+
+```
+Short i1 = -120;
+Short i2 = -120;
+System.out.println( i1 == i2 ); //true
+```
+
+当然这个值是可以通过参数调整的，如`-Djava.lang.Integer.IntegerCache.high=400`
+
+```
+Integer i1 = -129;
+Integer i2 = -129;
+System.out.println( i1 == i2 ); //false
+Integer i3 = -128;
+Integer i4 = -128;
+System.out.println( i3 == i4 ); //true
+Integer i5 = 400;
+Integer i6 = 400;
+System.out.println( i5 == i6 ); //true
+Integer i7 = 401;
+Integer i8 = 401;
+System.out.println( i7 == i8 ); //false
+```
+
+# 总结
+
+- `java.lang.Float 和 Double` 不会被缓存
+- 不要调用`java.lang.Number`子类的` valueOf(String)`方法，无论是是要得到原始类型还是封装类型都应该使用`parse[Type]`
+- 不要调用包装类型的构造方法，因为它总会创建一个实例，这样就绕过了缓存。
