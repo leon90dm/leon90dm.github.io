@@ -1,0 +1,166 @@
+---
+layout:     post
+title:      "java.util.IdentityHashMap"
+subtitle:   "java.util.IdentityHashMap"
+date:       2016-12-12
+author:     "BilboDai"
+header-img: "img/post-bg-rwd.jpg"
+catalog: true
+tags:
+    - Java
+    - Jvm
+    - Synchronization
+---
+
+IdentityHashMap是在JDK里面唯一 用对象自身来追踪对象（而不是object1.equals( object2 )）的Map。简单的说IdentityHashMap使用在那些你不能通过**增加额外的字段**或者**重写`equals and hashCode`**来改变索引的键的定义。
+
+- 如果不能增加或者修改`equals and hashCode`方法，但是已有的又不符合你的要求，可以使用**Trove maps custom hashing strategies**解决
+
+```
+final TObjectIntCustomHashMap<String> identityMap1 = new TObjectIntCustomHashMap<String>( new HashingStrategy<String>() {
+    @Override
+    public int computeHashCode( String str ) {
+        return System.identityHashCode( str );
+    }
+
+    @Override
+    public boolean equals( String str1, String str2 ) {
+        return str1 == str2;
+    }
+});
+```
+
+- 如果对象本身就有一个唯一的键的字段，那么请尽量使用一般的map并且以这个唯一键的字段作为key，而尽量避免使用IdentityHashMap。
+
+
+IdentityHashMap调用的是`System.identityHashCode`来活动对象的标识哈希值。` System.identityHashCode`是[`Java intrinsic methods`](http://hg.openjdk.java.net/jdk8/jdk8/hotspot/file/87ee5ee27509/src/share/vm/classfile/vmSymbols.hpp)中的一个
+
+```
+do_intrinsic(_identityHashCode,         java_lang_System,       identityHashCode_name, object_int_signature,   F_S)   \
+   do_name(     identityHashCode_name,                           "identityHashCode")                                    \
+```
+
+因此这个方法的调用可以被替换为单个或者几个CPU指令，效率很高。
+
+Non-deterministic order of IdentityHashMap iteration
+---
+因此又这些特性导致同一个程序在每次执行时对同样的对象`System.identityHashCode`返回的值都不一样。
+
+```
+private static void testOrder()
+{
+    final Map<String, String> map = new IdentityHashMap<String, String>();
+    for ( int i = 0; i < 10; ++i )
+        map.put( "Line #" + i, "Value #" + i );
+    for ( final String key : map.keySet() )
+        System.out.println( key );
+}
+---
+main{
+    testOrder();
+    testOrder();
+}
+```
+
+你会发现两次调用输出完全不一样。虽然逻辑都是一样的。
+
+IdentityHashMap vs HashMap performance
+---
+
+```
+for(i=0; i<iters; i++){
+    hashMap.put(stringArray[i],i);
+    identityMap.put(stringArray[i],i);
+}
+
+warming up 20k iters
+testing 5M iters
+
+total tests: 10
+
+---- Results ---
+HashMap time = 2.487 sec
+IdentityHashMap time = 1.218 sec
+HashMap time = 0.613 sec
+IdentityHashMap time = 0.729 sec
+HashMap time = 0.695 sec
+IdentityHashMap time = 0.721 sec
+```
+
+第一次HashMap会比IdentityHashMap慢，因为String第一次会计算并且缓存hashcode值。但从整体来看调用`identity hash code`效率很高。
+
+注意
+---
+对象的 `identity hash code` 储存在对象头的一个联合的部分中。也就意味着（还是用原话表达吧）
+
+> Finally, there's not currently space in the mark word to support both an identity hashCode() value as well as the thread ID needed for the biased locking encoding. Given that, you can avoid biased locking on a per-object basis by calling System.identityHashCode(o). If the object is already biased, assigning an identity hashCode will result in revocation, otherwise, the assignment of a hashCode() will make the object ineligible for subsequent biased locking. This property is an artifact of our current implementation, of course.
+
+为了更好的说明，如果你在一个对象上调用了`System.identityHashCode(o)`将导致该对象不能再被偏向锁优化，看下面例子：
+
+```
+public class HashCodeBiasLockDemo {
+
+    public final static Object lock = new Object();
+    public final static Object hashedLock = new Object();
+
+    static {
+        System.identityHashCode(hashedLock);
+    }
+
+    static int i = 0;
+
+    public static int test() {
+        synchronized (lock) {
+            i = i + 1;
+            i = i & 0xff;
+            i = i - 1;
+            return i;
+        }
+    }
+
+    public static int testHash() {
+        synchronized (hashedLock) {
+            i = i + 1;
+            i = i & 0xff;
+            i = i - 1;
+            return i;
+        }
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        int couts = 1000_1000;
+
+        long start = System.currentTimeMillis();
+        for (int j = 0; j < couts; j++) {
+            test();
+        }
+        System.out.println("cost:" + (System.currentTimeMillis() - start));
+
+        start = System.currentTimeMillis();
+
+        for (int j = 0; j < couts; j++) {
+            testHash();
+        }
+        System.out.println("hashed cost:" + (System.currentTimeMillis() - start));
+
+    }
+}
+```
+
+用以下参数运行(Biased Locking is enabled after 4 minutes, to enable it right away use -XX:BiasedLockingStartupDelay=0 option)：
+
+```
+-XX:BiasedLockingStartupDelay=0 -XX:+UseBiasedLocking
+```
+
+得到：
+
+```
+cost:34
+hashed cost:244
+```
+
+
+参见：
+http://arturmkrtchyan.com/jvm-biased-locking
+https://wiki.openjdk.java.net/display/HotSpot/Synchronization
