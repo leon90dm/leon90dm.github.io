@@ -1,0 +1,44 @@
+I"�
+<h2 id="概述">概述</h2>
+<p>内存使用的优化是Java优化中比较重要的一环，现在的系统性能不在受制于CPU的频率而是内存的访问次数。这正是为什么CPU需要提供L1-L3缓存，也就是说减少程序内存的占用很可能就能提升程序数据的处理速度，因为CPU只需要等待少量的内存数据。</p>
+
+<h2 id="java内存布局">Java内存布局</h2>
+<p>我们知道，任何一个Java的对象都需要至少占用16个字节（对象头占12B，按照8字节对齐），任何一个对象的引用在32G下占用4字节，或者使用<code class="highlighter-rouge">XX:+UseCompressedOops</code>，否则32G以上则占用8字节。
+Java原始类型的内存占用如下：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    byte, boolean	1 byte
+    short, char	2 bytes
+    int, float	4 bytes
+    long, double	8 bytes
+</code></pre></div></div>
+
+<h2 id="常用的类型及其内存占用">常用的类型及其内存占用</h2>
+<ul>
+  <li>
+    <p>数组=对象头（12B)+长度(4B)+长度*元素大小 % 按照8字节对齐</p>
+  </li>
+  <li>
+    <p>字符串，字符串有3个字段，一个char[]加上2个int，2个int是利用2种不同的hash算法生成的hashcode。那么字符串至少需要12 (header) + 4 (char[] reference) + 4 * 2 (int) = 24 bytes，另外char[]占用12字节+length<em>2字节，那么一个字符串总共占用为：36+length</em>2字节再按照8字节对齐。</p>
+  </li>
+  <li>
+    <p>Numberic Wrapper，引用型数字类型除了值本身内存占用还需要额外的12个字节的head。</p>
+  </li>
+</ul>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    Byte, Boolean	16 bytes
+    Short, Character	16 bytes
+    Integer, Float	16 bytes
+    Long, Double	24 bytes
+</code></pre></div></div>
+
+<h2 id="内存优化要点">内存优化要点</h2>
+
+<ul>
+  <li>优先使用原始类型，而不是封装类型，使用封装类型的原因主要是在集合（Collection）上，所以考虑使用原始类型的集合类型库，比如<a href="http://trove.starlight-systems.com/">Trove</a></li>
+  <li>减少对象的新建，比如使用 ArrayList/ArrayDeque替代LinkedList。</li>
+  <li>使用静态内部类，非静态的内部类有一个指向父类的引用（4或者8字节）</li>
+  <li>使用单例，空集合使用emptyList/emptyMap/emptySet，单元素、集合或者Map使用singletonList/singletonMap/singleton。</li>
+  <li>使用BitSet替代list/array of boolean flags。这样不仅可以节约内存（1字节变成1位）的同时也对CPU Cache友好。</li>
+  <li>合适的时候使用String.intern()</li>
+</ul>
+:ET

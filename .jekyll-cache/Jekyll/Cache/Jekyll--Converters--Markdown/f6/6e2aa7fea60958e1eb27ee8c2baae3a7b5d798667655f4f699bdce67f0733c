@@ -1,0 +1,77 @@
+I"�
+<p>下面介绍使用<a href="http://www.gravizo.com/">Graphviz</a>在Markdown中画UML图</p>
+
+<h2 id="实现原理">实现原理</h2>
+<p><a href="http://www.gravizo.com/">Graphviz</a>提供一个HTTP接口通过传入用于绘制的脚本，返回对应的图像数据后加以渲染</p>
+
+<h2 id="支持哪些脚本">支持哪些脚本</h2>
+
+<p><a href="http://www.gravizo.com/">Graphviz</a>支持</p>
+
+<ul>
+  <li><a href="https://en.wikipedia.org/wiki/DOT_(graph_description_language)">DOT</a></li>
+  <li><a href="http://plantuml.com/sequence-diagram">PlantUML</a></li>
+  <li>UMLGraph</li>
+</ul>
+
+<h2 id="实例">实例</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>![Alt text](http://g.gravizo.com/svg?
+  digraph G {
+    aize ="4,4";
+    main [shape=box];
+    main -&gt; parse [weight=8];
+    parse -&gt; execute;
+    main -&gt; init [style=dotted];
+    main -&gt; cleanup;
+    execute -&gt; { make_string; printf}
+    init -&gt; make_string;
+    edge [color=red];
+    main -&gt; printf [style=bold,label="100 times"];
+    make_string [label="make a string"];
+    node [shape=box,style=filled,color=".7 .3 1.0"];
+    execute -&gt; compare;
+  }
+)
+</code></pre></div></div>
+
+<p>将会采用SVG的模式渲染出下面的图案</p>
+
+<p><img src="http://g.gravizo.com/svg?
+  digraph G {
+    aize =&quot;4,4&quot;;
+    main [shape=box];
+    main -&gt; parse [weight=8];
+    parse -&gt; execute;
+    main -&gt; init [style=dotted];
+    main -&gt; cleanup;
+    execute -&gt; { make_string; printf}
+    init -&gt; make_string;
+    edge [color=red];
+    main -&gt; printf [style=bold,label=&quot;100 times&quot;];
+    make_string [label=&quot;make a string&quot;];
+    node [shape=box,style=filled,color=&quot;.7 .3 1.0&quot;];
+    execute -&gt; compare;
+  }" alt="Alt text" /></p>
+
+<h2 id="提供低画质的png格式和高画质的svg">提供低画质的PNG格式和高画质的SVG</h2>
+<p>如果想采用PNG格式的话只需要把<code class="highlighter-rouge">http://g.gravizo.com/svg</code>替换为<code class="highlighter-rouge">http://g.gravizo.com/g</code>即可，支持图像效果要差好多
+<img src="http://g.gravizo.com/g?
+  digraph G {
+    aize =&quot;4,4&quot;;
+    main [shape=box];
+    main -&gt; parse [weight=8];
+    parse -&gt; execute;
+    main -&gt; init [style=dotted];
+    main -&gt; cleanup;
+    execute -&gt; { make_string; printf}
+    init -&gt; make_string;
+    edge [color=red];
+    main -&gt; printf [style=bold,label=&quot;100 times&quot;];
+    make_string [label=&quot;make a string&quot;];
+    node [shape=box,style=filled,color=&quot;.7 .3 1.0&quot;];
+    execute -&gt; compare;
+  }" alt="Alt text" /></p>
+
+<p>更多样例请参见<a href="http://www.gravizo.com/">Graphviz</a></p>
+:ET

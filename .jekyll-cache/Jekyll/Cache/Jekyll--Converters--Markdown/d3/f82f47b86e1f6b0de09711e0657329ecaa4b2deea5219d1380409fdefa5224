@@ -1,0 +1,52 @@
+I"=<h2 id="概述">概述</h2>
+<p><strong>非常非常少的情况下你需要使用ByteArrayOutputStream尤其是在性能很关键的地方！！！</strong></p>
+
+<p>ByteArrayOutputStream一般都是使用在不知道要写入消息大小的情况下。但是只有极少数的情况下我们不知道要写的消息的大小。
+<strong>【重要】</strong>如果你事先知道要写入消息的大小，至少知道消息大小的上限。那么使用ByteBuffer替代ByteArrayOutputStream</p>
+
+<blockquote>
+  <p><a href="http://java-performance.info/various-methods-of-binary-serialization-in-java/">关于二进制序列化方法</a></p>
+  <ol>
+    <li>使用<code class="highlighter-rouge">direct ByteBuffer</code>一个字节一个字节的写是及其的缓慢。</li>
+    <li>使用ByteBuffer的put(array)批量写方法这个方法性能只会比Unsafe稍稍慢一些。</li>
+    <li>字段类型越长，heap buffer就会越慢相反direct byte buffer则会越快</li>
+    <li>java7的ByteBuffer性能比java6优化了很多</li>
+    <li>当序列化原始类型数组时强烈推荐使用direct byte buffer，并且设置byte order（大端还是小端）和平台的机器保持一致。</li>
+  </ol>
+</blockquote>
+
+<p>ByteArrayOutputStream可以把任何数据写入到一个内部的byte数组中，默认buffer大小是32字节，如果你需要些一些更大的数据，可以通过构造方法传入大小<code class="highlighter-rouge">ByteArrayOutputStream(int)</code>。这里要注意ByteArrayOutputStream的方法是同步的，这一点是有性能损失的。</p>
+
+<h2 id="如何使用bytearrayoutputstream">如何使用ByteArrayOutputStream</h2>
+
+<p>可能你也会使用BufferedOutputStream，它和ByteArrayOutputStream的区别仅仅在于写底层流的调用上。当内部的缓存满的时候BufferedOutputStream把缓冲数据写到底层流中而ByteArrayOutputStream则是扩大内部缓冲。
+所以当你要写一个方法用于存储消息到底层流中的时候就可以使用ByteArrayOutputStream，为了更方便的写入各种类型，还可以使用DataOutputStream来封装它。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>private static final class LogEvent
+{
+    public final int ipv4;
+    public final long time;
+    public final String eventDesc;
+ 
+    public void saveTo( final OutputStream os ) throws IOException {
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream( 12 + 2 + eventDesc.length() * 2 );
+        //使用DataOutputStream封装ByteArrayOutputStream
+        final DataOutputStream dos = new DataOutputStream( baos );
+        try
+        {
+            dos.writeInt( ipv4 );
+            dos.writeLong( time );
+            dos.writeUTF( eventDesc );
+        }
+        finally {
+            dos.close();
+        }
+        //使用writeTo可以直接复用DataOutputStream内部缓存而不需要拷贝字节数组
+        baos.writeTo( os );
+    }
+}
+</code></pre></div></div>
+<p>另外很少人知道<code class="highlighter-rouge">ByteArrayOutputStream.toString(String charsetName)</code>可以将内部的字节缓存直接构造字符串返回。</p>
+
+<p>【Notice】避免<code class="highlighter-rouge">ByteArrayOutputStream.toByteArray()</code>方法，它拷贝了一个内部的字节数组，GC回收这些拷贝的数组需要花费客观的时间。</p>
+:ET

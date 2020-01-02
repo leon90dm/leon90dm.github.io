@@ -1,0 +1,93 @@
+I"_<p>ArrayList拥有以下的方法：</p>
+
+<ul>
+  <li>add(E) 很快，元素会被添加list的tail</li>
+  <li>add(int, E) 会使用<code class="highlighter-rouge">System.arraycopy</code>将插入的位置后面的元素拷贝到尾部，时间复杂度为O(n)，并且效率<em>会随着插入的位置越靠前</em>越低。（1M的元素需要花费125s把元素加入到开头）</li>
+  <li>addAll(List<E>)</E></li>
+  <li>addAll(int, List<E>) 会2次使用`System.arraycopy`</E></li>
+</ul>
+
+<h2 id="removeint">remove(int)</h2>
+<p>移除给定位置的元素，移除之后右边的所有元素利用<code class="highlighter-rouge">System.arraycopy</code>左移。因此拥有O(n)复杂度。这里需要注意<code class="highlighter-rouge">remove(int)</code>和<code class="highlighter-rouge">remove(Object)</code>的混用，比如如果你想删除list的第一个元素调用<code class="highlighter-rouge">remove(0)</code>。但是如果你想删除list的元素为0的元素，就得把0转换为Object即：<code class="highlighter-rouge">remove( (Integer) 0 )</code>
+正如上面提到的<code class="highlighter-rouge">remove(int)</code>具有O(n)的复杂度，那么稍微不注意就会写出低效率的代码，如：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>while ( !buffer.isEmpty() )
+{
+    Elem el = buffer.remove( 0 );
+    process( el );
+}
+</code></pre></div></div>
+
+<p>上面的代码片段中当list元素增大时，所有的时间都将花费在<code class="highlighter-rouge">System.arraycopy</code>上。如果必须先从buffer的第一个加入的元素开始处理。可以调用<code class="highlighter-rouge">Collections.reverse</code>将buffer颠倒之后从尾部开始处理和删除</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Collections.reverse( buffer );
+while ( !buffer.isEmpty() )
+{
+  Elem el = buffer.remove( buffer.size() - 1 );
+  process( el );
+}
+</code></pre></div></div>
+
+<h2 id="removeobject">remove(Object)</h2>
+<p>这个实现是删除第一个等于参数的值的元素，由于需要遍历整个链表则复杂度为O(n).因此这个方法的使用也有上面提到的问题，同时如果你知道确切的要删除的元素的位置，绝对不要使用这个方法。</p>
+
+<p><strong><em>注意</em></strong> <code class="highlighter-rouge">remove()</code>方法调用之后删除了元素，但是并没有压缩内部的元素数组。同样<code class="highlighter-rouge">clear()</code>也不会。因此如果list的size某时刻达到一个很高的值，而其他情况都比较小。那么是会比较浪费空间的。唯有调用<code class="highlighter-rouge">trimeToSize()</code>可以将其不用的空间压缩。</p>
+
+<h2 id="removeallcollection-retainallcollection">removeAll(Collection), retainAll(Collection)</h2>
+<p>第一个删除参数中所有的元素，第一个是保留参数中所有的元素。这两个方法复杂度都是O(n^2).同样删除元素之后也不会压缩。什么时候会使用这两个方法？或许你只是知道移除单个元素的低效率，只是想批量的移除元素。移除list中的null元素：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public static &lt;T&gt; void cleanNulls( final List&lt;T&gt; lst )
+{
+    int pFrom = 0;
+    int pTo = 0;
+    final int len = lst.size();
+    //copy all not-null elements towards list head
+    while ( pFrom &lt; len )
+    {
+        if ( lst.get( pFrom ) != null )
+            lst.set( pTo++, lst.get( pFrom ) );
+        ++pFrom;
+    }
+    //there are some elements left in the tail - clean them
+    lst.subList( pTo, len ).clear();
+}
+</code></pre></div></div>
+
+<h2 id="sublistint-int">subList(int, int)</h2>
+<p>这个方法使用在以下场景：</p>
+
+<ul>
+  <li>快速删除list中的部分元素</li>
+  <li>迭代list中的部分元素</li>
+  <li>递归（快排）</li>
+</ul>
+
+<p>JavaDoc虽然没说，但是<code class="highlighter-rouge">list.subList(from, to).clear()</code>显然是清理list部分元素最快的方法。因为它只会调用一次<code class="highlighter-rouge">System.arraycopy</code>
+For-each的加入是为了在遍历的时候避免使用index变量。但是如果想遍历list的部分元素有不需要index变量怎么做？<code class="highlighter-rouge">list.subList(from, to).clear()</code>才是正解。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public static int getTotalLength( final List&lt;String&gt; lst, final int from, final int to )
+{
+    int sum = 0;
+    for ( final String s : lst.subList( from, to ) )
+    {
+        sum += s.length();
+    }
+    return sum;
+}
+</code></pre></div></div>
+
+<h2 id="getint">get(int)</h2>
+<p>这个方法java7要比java6慢1/3左右。因为java7使用了一个多余的方法去访问内部的数组。而java6是直接访问的。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public E get(int index) {
+        rangeCheck(index);
+
+        return elementData(index);
+    }
+</code></pre></div></div>
+
+<p>JIT似乎也没有内敛这个方法的意思，但是总的来说这个差别只会在几亿次调用才能看得出来。</p>
+
+<h2 id="containsobject-indexofobject">contains(Object), indexOf(Object)</h2>
+<p>这两个方法具有O(n)复杂度。如果需要频繁的在List中调用，请考虑使用Set。</p>
+:ET

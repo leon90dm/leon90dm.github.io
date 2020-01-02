@@ -1,0 +1,68 @@
+I"�<h2 id="前言">前言</h2>
+<p>JDK提供两种方式用于迭代Zip文件里的记录</p>
+
+<ul>
+  <li>使用ZipFile</li>
+  <li>使用ZipInputStream</li>
+</ul>
+
+<h2 id="使用zipfile">使用ZipFile</h2>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">final</span> <span class="nc">ZipFile</span> <span class="n">file</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ZipFile</span><span class="o">(</span> <span class="no">FILE_NAME</span> <span class="o">);</span>
+<span class="k">try</span>
+<span class="o">{</span>
+    <span class="kd">final</span> <span class="nc">Enumeration</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="nc">ZipEntry</span><span class="o">&gt;</span> <span class="n">entries</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="na">entries</span><span class="o">();</span>
+    <span class="k">while</span> <span class="o">(</span> <span class="n">entries</span><span class="o">.</span><span class="na">hasMoreElements</span><span class="o">()</span> <span class="o">)</span>
+    <span class="o">{</span>
+        <span class="kd">final</span> <span class="nc">ZipEntry</span> <span class="n">entry</span> <span class="o">=</span> <span class="n">entries</span><span class="o">.</span><span class="na">nextElement</span><span class="o">();</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span> <span class="n">entry</span><span class="o">.</span><span class="na">getName</span><span class="o">()</span> <span class="o">);</span>
+        <span class="c1">//use entry input stream:</span>
+        <span class="n">readInputStream</span><span class="o">(</span> <span class="n">file</span><span class="o">.</span><span class="na">getInputStream</span><span class="o">(</span> <span class="n">entry</span> <span class="o">)</span> <span class="o">)</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+<span class="k">finally</span>
+<span class="o">{</span>
+    <span class="n">file</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+<span class="o">}</span>
+    
+<span class="kd">private</span> <span class="kd">static</span> <span class="kt">int</span> <span class="nf">readInputStream</span><span class="o">(</span> <span class="kd">final</span> <span class="nc">InputStream</span> <span class="n">is</span> <span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+    <span class="kd">final</span> <span class="kt">byte</span><span class="o">[]</span> <span class="n">buf</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">byte</span><span class="o">[</span> <span class="mi">8192</span> <span class="o">];</span>
+    <span class="kt">int</span> <span class="n">read</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+    <span class="kt">int</span> <span class="n">cntRead</span><span class="o">;</span>
+    <span class="k">while</span> <span class="o">(</span> <span class="o">(</span> <span class="n">cntRead</span> <span class="o">=</span> <span class="n">is</span><span class="o">.</span><span class="na">read</span><span class="o">(</span> <span class="n">buf</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">buf</span><span class="o">.</span><span class="na">length</span> <span class="o">)</span> <span class="o">)</span> <span class="o">&gt;=</span><span class="mi">0</span>  <span class="o">)</span>
+    <span class="o">{</span>
+        <span class="n">read</span> <span class="o">+=</span> <span class="n">cntRead</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="n">read</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="使用zipinputstream">使用ZipInputStream</h2>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">final</span> <span class="nc">ZipInputStream</span> <span class="n">is</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ZipInputStream</span><span class="o">(</span> <span class="k">new</span> <span class="nc">BufferedInputStream</span><span class="o">(</span> <span class="k">new</span> <span class="nc">FileInputStream</span><span class="o">(</span> <span class="no">FILE_NAME</span> <span class="o">)</span> <span class="o">)</span> <span class="o">);</span>
+<span class="k">try</span>
+<span class="o">{</span>
+    <span class="nc">ZipEntry</span> <span class="n">entry</span><span class="o">;</span>
+    <span class="k">while</span> <span class="o">(</span> <span class="o">(</span> <span class="n">entry</span> <span class="o">=</span> <span class="n">is</span><span class="o">.</span><span class="na">getNextEntry</span><span class="o">()</span> <span class="o">)</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">)</span>
+    <span class="o">{</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span> <span class="n">entry</span><span class="o">.</span><span class="na">getName</span><span class="o">()</span> <span class="o">);</span>
+        <span class="c1">//use entry input stream:</span>
+        <span class="n">readInputStream</span><span class="o">(</span> <span class="n">is</span> <span class="o">)</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+<span class="k">finally</span>
+<span class="o">{</span>
+    <span class="n">is</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="zipfile和zipinputstream有什么区别">ZipFile和ZipInputStream有什么区别</h2>
+<p>压缩文件一般都包含了两个及以上的文件记录，每个文件记录都有一个字段记录着当前记录的文件的大小，所以遍历所有的压缩的文件记录并不需要把文件进行解压缩。ZipFile即是这样，它可以在文件记录之间随机访问，而ZipInputStream则不能，它只能把文件进行解压缩之后一个一个文件进行迭代。</p>
+
+<p>因此，如果你只是想获取压缩文件中某个文件的内容，那么使用ZipFile是合适的，而想要依次全部处理，那么使用ZipInputStream即可。</p>
+
+<p>这里举个例子，一个压缩文件大小大概1.6GB，包含三个0.6GB文件记录，使用ZipFile迭代只需要0.05s，而使用ZipInputStream则需要18s。</p>
+
+<h2 id="其他">其他</h2>
+<p>Java6及以前是不支持任何文件超过2GB的，这里的文件指的是压缩之后总的压缩文件大小和未压缩前的任何文件记录。但Java7之后就支持了zip64。</p>
+:ET

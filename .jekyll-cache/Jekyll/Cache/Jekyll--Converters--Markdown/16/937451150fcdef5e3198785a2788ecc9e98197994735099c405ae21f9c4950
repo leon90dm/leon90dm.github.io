@@ -1,0 +1,65 @@
+I"�<h2 id="gamma分布">Gamma分布</h2>
+
+<h3 id="gamma函数">Gamma函数</h3>
+
+<script type="math/tex; mode=display">\Gamma(x)=\int_{0}^{\infty} t^{x-1} e^{-t} d t
+=\int_{0}^{\infty}\frac{t^{x-1}}{e^{t}}dt</script>
+
+<ul>
+  <li>
+    <p>👉 当   <script type="math/tex">x-1 > 0</script>   时， $\frac{t^{x-1}}{e^{t}}$  随着 $t$ 先增加后减小，而 $x-1$ 决定了增长速率。如下图：（$t \gets x,  x-1 \gets (3, 4)$）</p>
+
+    <p><img src="https://tva1.sinaimg.cn/large/006tNbRwly1gafyu6ypeoj30rs0min1j.jpg" alt="image-20191231160437357" /></p>
+
+    <p>​												（图1）</p>
+
+    <ul>
+      <li>它的<u>增长率函数，当$x = t$ 附近最大</u>。</li>
+    </ul>
+  </li>
+  <li>
+    <p>Gamma函数是 <strong>阶乘</strong> 在实数域上的拓展</p>
+  </li>
+  <li>
+    <p>$\Gamma(x) = (x-1)!\ ;  x \in (0, 1, 2, \dots)$</p>
+
+    <ul>
+      <li>👉 可以换一种角度来理解：$x-1$ 确定了最终能累计的最大值。比如：$\Gamma(3) = (3-1)! = 2$ ，其中 $2$ 这个数字是通过单位时间 $dt$  从 $\infty \gets 0$ 累计得到的（当然它并不是均匀累计，而是如上面的图一样，随着 $t$ 的变化而变化） 由此自然而然可以得到 <u>Gamma分布</u>。</li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
+<h3 id="gamma-分布">Gamma 分布</h3>
+
+<p>如果 $x$  确定之后， $\Gamma(x)$ 就为一常量，把（1）式两边除以常量  $\Gamma(x)$  得到：
+<script type="math/tex">\int_{0}^{\infty}\left( \frac{t^{x-1} e^{-t}}{\Gamma(x)} \right)  dt=1</script>
+​	从式子看，相当于是对 $\Gamma(x)$ 做了均一化而已。</p>
+
+<h4 id="泊松分布">泊松分布</h4>
+
+<p>从（1）式，我们知道：<u>不同的$x-1$ 在相同的 $t$ 下速率是不一样的。</u> 换个角度讲，当我们知道一个 $t$ 下的累计速率之后。我们可以反推它是哪种 $x-1$ 的情况。于是，我们固定 $t$ 然后更改 $x$  就可以把 $\left( \frac{t^{x-1} e^{-t}}{\Gamma(x)} \right)$的图像如下：</p>
+
+<p><img src="https://tva1.sinaimg.cn/large/006tNbRwly1gag0t0xhbaj316e0hiaf4.jpg" alt="image-20191231171246436" /></p>
+
+<p>​													（图2）</p>
+
+<ol>
+  <li>当 $t=2.3$ 时，可以看到 $x$ 在 $2.5$ 附近最大，而在 $x=5$ 附近比较小，$t=5$ 时同理</li>
+  <li>由此，如果给定一个累计速率 $2.3$ ，那么选择 $x=2.5$ 的概率比选择$x=5$ 大。由此，就得到了下面的泊松分布</li>
+</ol>
+
+<p>替换: $\alpha \gets x , \beta x \gets t, d(\beta x) \gets dt$ 然后 <strong>抽取中间部分函数</strong> 就得到一个累计的概率密度函数【因为从$\infty \gets 0$ 积分的结果是 <strong>1</strong>。】：
+<script type="math/tex">\operatorname{Gamma}(x |\alpha, \beta)=\frac{\beta^\alpha x^{\alpha-1} e^{-\beta x}}{\Gamma(\alpha)} (dx)</script>
+替换（3）式: $ \alpha = k+1, \beta = 1, x = \lambda$ 得到：
+<script type="math/tex">\operatorname{Possion}(k|\lambda) = \frac{\lambda^k}{k!}e^{-\lambda}</script></p>
+
+<p>​				其中： $k$ 即是 图（2） 中的 x。</p>
+
+<h4 id="指数分布">指数分布</h4>
+
+<p>指数分布等价于 一次事件都没有发生 $k=0$ ,得到：
+<script type="math/tex">\operatorname{Exp}(\lambda) = Possion(k=0|\lambda) = e^{-\lambda}</script>
+​</p>
+:ET

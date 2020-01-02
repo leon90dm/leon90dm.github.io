@@ -1,0 +1,73 @@
+I"�<p>通过打开<code class="highlighter-rouge">-XX:+PrintCompilation</code>（默认是false）开关，每一次方法或者循环被编译，JVM都会打印一条编译日志，日志的格式随着不同的java版本而不同，直到java7后，日志格式是：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>timestamp compilation_id attributes (tiered_level) method_name size deopt
+</code></pre></div></div>
+
+<ul>
+  <li><code class="highlighter-rouge">timestamp</code>是编译完成时相对于JVM启动的时间（0）偏移</li>
+  <li><code class="highlighter-rouge">compilation_id</code>是一个内部的编译任务ID，一般情况下是依次递增的，但当编译线程多了之后可能会乱序了，因为有的先启动编译的时间会比后开始编译的较长</li>
+  <li><code class="highlighter-rouge">attributes</code>揭示被编译的代码的状态，</li>
+</ul>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>%: The compilation is OSR.
+s: The method is synchronized.
+!: The method has an exception handler.
+b: Compilation occurred in blocking mode.
+n: Compilation occurred for a wrapper to a native method.
+</code></pre></div></div>
+
+<p>如果编译状态由多个<code class="highlighter-rouge">attribute</code>，会以<strong>空格</strong>分割。<code class="highlighter-rouge">b</code>阻塞属性在现有的java版本中不会出现，它表示编译不是在后台异步进行的。</p>
+
+<ul>
+  <li><code class="highlighter-rouge">tiered_level</code> 如果程序不是以tiered compilation运行的，那么这个字段将是空的。否则它会是一个<code class="highlighter-rouge">Tiered Compilation Levels</code>。</li>
+  <li><code class="highlighter-rouge">method_name</code> 被编译的方法名，一般是<code class="highlighter-rouge">ClassName::method</code>格式。</li>
+  <li><code class="highlighter-rouge">size</code> 单位是（bytes），表示被编译代码的大小，这个大小是指被编译的bytecode的大小而不是编译之后的。</li>
+  <li><code class="highlighter-rouge">deopt</code> 表示发生了<strong>反优化</strong>行为。主要是<strong>made not entrant</strong> or <strong>made zombie</strong></li>
+</ul>
+
+<p>编译日志也有可能类似：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>timestamp compile_id COMPILE SKIPPED: reason
+</code></pre></div></div>
+
+<p>这个日志标识编译没能成功，原因可能是：</p>
+
+<ul>
+  <li>Code cache filled 需要使用ReservedCodeCache提高codecache大小</li>
+  <li>Concurrent classloading class在编译期间被修改了。JVM会等会儿再做编译。</li>
+</ul>
+
+<p>下面是一个编译日志的样例：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> 28015  850  net.sdo.StockPrice::getClosingPrice (5 bytes)
+ 28179  905  s net.sdo.StockPriceHistoryImpl::process (248 bytes)
+ 28226   25 % net.sdo.StockPriceHistoryImpl::&lt;init&gt; @ 48 (156 bytes)
+ 28244  935  net.sdo.MockStockPriceEntityManagerFactory$MockStockPriceEntityManager::find (507 bytes)
+ 29929  939  net.sdo.StockPriceHistoryImpl::&lt;init&gt; (156 bytes)
+106805 1568   ! net.sdo.StockServlet::processRequest (197 bytes)
+</code></pre></div></div>
+
+<h2 id="inspecting-compilation-with-jstat">Inspecting Compilation with jstat</h2>
+<p>如果没有打开<code class="highlighter-rouge">-XX:+PrintCompilation</code>开关，还可以通过<code class="highlighter-rouge">jstat</code>来提供编译的信息。<code class="highlighter-rouge">jstat</code>提供两个选项：</p>
+
+<ul>
+  <li>-compiler</li>
+</ul>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% jstat -compiler 5003
+Compiled Failed Invalid Time FailedType FailedMethod
+    206     0       0   1.97    0
+</code></pre></div></div>
+
+<ul>
+  <li>-printcompilation</li>
+</ul>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% jstat -printcompilation 5003 1000 
+Compiled Size Type Method
+   207     64    1 java/lang/CharacterDataLatin1 toUpperCase
+   208      5    1 java/math/BigDecimal$StringBuilderHelper getCharArray
+</code></pre></div></div>
+
+<p>但jstat得到的信息不是特别的全面。</p>
+:ET
