@@ -1,0 +1,19 @@
+---
+layout:     post
+title:      "MCMC"
+subtitle:   "Gamma"
+date:       2020-01-02
+author:     "BilboDai"
+header-img: "img/post-bg-os-metro.jpg"
+catalog: true
+tags:
+    - probability
+---
+
+## 【问题】求阴影部分面积
+
+<img src="https://tva1.sinaimg.cn/large/006tNbRwly1ga7x0twq7mj30is0egq44.jpg" alt="img" style="zoom: 33%;" />
+
+如上图，已知一个函数： $$ f(x) $$ ，但，并不知道函数的具体形式，它或许是   $$f(x) = x^2$$  又或许是 $$f(x) = x^3$$  那试问如何求 <u>**阴影部分**</u> 面积？
+
+​	
