@@ -4,7 +4,6 @@ title:      "大数定律"
 subtitle:   "大数定律"
 date:       2020-01-07
 author:     "BilboDai"
-header-img: "img/post-bg-os-metro.jpg"
 catalog: true
 tags:
     - probability
