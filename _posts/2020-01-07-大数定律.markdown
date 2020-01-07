@@ -78,3 +78,22 @@ $$
 构建 Uniform -> Binomial 的概率模型，利用观察到的数据得到输出的二项式分布的 均值和方差。但，直接比较均值还不行。因为有误差，比如 450 likes vs 450 unlikes 与 1 like vs 1 unlike。解决办法是利用：95%置信最小值。
 
 <img src="https://tva1.sinaimg.cn/large/006tNbRwly1gao7nuzfftj30y40oujtp.jpg" alt="image-20200107191422348" style="zoom:50%;" />
+
+解决办法：
+
+使用 $$ Beta(a,b) $$ 分布， 其中 $$a = 1+ likes, b = 1+unlikes$$ 。要得到左 5%累计分布的变量值，需要对Beta求逆累计分布函数([Cumulative Distribution Function](https://en.wikipedia.org/wiki/Cumulative_Distribution_Function))（但对于整数参数，求和很大）。
+
+### 使用正态分布近似计算：
+
+$$
+\mu=a /\left(a+b\right)
+$$
+
+$$
+\sigma^{2}=\frac{a b}{\left(a+b\right)^{2}\left(a+b+1\right)}
+$$
+
+所以，查询标准正态分布表即可：
+$$
+0.05=\Phi\left(\frac{(x-\mu)}{\sigma}\right)
+$$
