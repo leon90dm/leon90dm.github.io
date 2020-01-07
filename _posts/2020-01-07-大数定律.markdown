@@ -32,8 +32,8 @@ $$
 D(N)=\sqrt{E\left[\left(\frac{1}{N} \sum_{i=1}^{N} Z_{i}-4.5\right)^{2}\right]}
 $$
 
-	>
-	>
+
+
 	>从图1可以看出，给定样本量 $$N$$  。多次执行样本量均值计算，可以发现每次得到的样本均值不同。但随着 $$N$$ 的变大，多次执行样本量均值计算的结果偏差变小。定义一次执行样本均值计算结果距离期望距离为：
 	>$$
 	>d_j = \left(\frac{1}{N}\sum_{i=1}^{N}Z_i - 4.5\right)^2
@@ -42,6 +42,8 @@ $$
 	>$$
 	>D(N) = \sqrt{\frac{1}{K}\sum_{j=1}^{K}d_j}
 	>$$
+
+
 
 ![image-20200107171820406](https://tva1.sinaimg.cn/large/006tNbRwly1gao4b5ef94j31aw0ny766.jpg)
 
