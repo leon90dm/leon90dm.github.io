@@ -1,0 +1,51 @@
+---
+layout:     post
+title:      "时序分析"
+subtitle:   ""
+date:       2020-01-13
+author:     "BilboDai"
+catalog: true
+tags:
+    - probability
+---
+
+### 两个特性
+
+- 趋势（Trends）
+- 周期性（seasonality）
+  - 小时周期、天周期、星期周期、月周期、季度周期、年周期……
+
+### 如何解决趋势问题
+
+![plots/output/exponential_smoothing/trend_time_series.png](https://tva1.sinaimg.cn/large/006tNbRwly1gav87xpydvj31c00u0gpj.jpg)
+
+
+
+### 解决周期性问题
+
+![plots/output/misc/load_avg_seasonal.png](https://tva1.sinaimg.cn/large/006tNbRwly1gav8b3hdq6j31c00u0q4t.jpg)
+
+
+
+如果将上图放大，可以发现，它很像一个一个的趋势连接在一起。
+
+
+
+### Multiple Exponential Smoothing
+
+>
+>
+>https://en.wikipedia.org/wiki/Exponential_smoothing
+
+
+
+Multiple Exponential Smoothing 主要有三个组成部分：
+
+1.  **EWMA**  with factor of  $$\alpha$$
+2.  **trend component**  它也是一个EWMA with factor of $$\beta$$ 
+3. **seasonal component**  它也是一个EWMA with factor of $$\gamma$$
+
+👉 : The trend and seasonal components are EWMAs too.
+
+
+

@@ -1,0 +1,78 @@
+---
+layout:     post
+title:      "损失函数"
+subtitle:   "损失函数"
+date:       2020-01-10
+author:     "BilboDai"
+catalog: true
+tags:
+    - probability
+---
+
+### 损失函数是用来衡量 估计 的好坏程度。
+
+
+$$
+L(\theta, \hat{\theta})=(\theta-\hat{\theta})^{2}
+$$
+
+
+### 平方损失函数
+
+平方损失 常见 且 常用于线性回归 中。也有非对称的版本，用于区别 $$\hat\theta < \theta $$ 或 $$\hat\theta \ge \theta$$ 两种的程度。
+
+
+$$
+L(\theta, \hat{\theta})=\left\{\begin{array}{ll}
+{(\theta-\hat{\theta})^{2}} & {\hat{\theta}<\theta} \\
+{c(\theta-\hat{\theta})^{2}} & {\hat{\theta} \geq \theta, \quad 0<c<1}
+\end{array}\right.
+$$
+
+
+>
+>
+>平方损失函数对 异常值 很敏感（影响得到最优解）
+
+
+
+
+
+### [Log损失函数](https://www.geogebra.org/graphing/cr9ateyz)
+
+
+$$
+L(\theta, \hat{\theta})=-\theta \log (\hat{\theta})-(1-\theta) \log (1-\hat{\theta}), \quad \theta \in 0,1, \quad \hat{\theta} \in[0,1]
+$$
+
+
+### Confident of Yes/No Loss
+
+
+$$
+L(\theta, \hat{\theta})=\frac{|\theta-\hat{\theta}|}{\theta(1-\theta)}, \quad \hat{\theta}, \theta \in[0,1]
+$$
+
+
+![image-20200110212452618](https://tva1.sinaimg.cn/large/006tNbRwly1garsao22hpj30vu0e6t99.jpg)
+
+[Yes/No loss 函数](https://www.geogebra.org/graphing/wupvmrbw)
+
+>
+>
+>Yes/No loss 中真值 $$\theta $$ 为 0或1 ，它非常不能容忍估计值 x 偏离哪怕一点
+
+
+
+使用贝叶斯推断未知参数时，我们通常把 **未知参数** 当做具有 **先验和后验分布** 的随机变量。所以相比 未知参数的推测，我们更关心 **给定推测值时的损失**
+
+
+
+
+
+
+
+
+
+
+

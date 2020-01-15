@@ -1,0 +1,21 @@
+---
+layout:     post
+title:      "贝叶斯"
+subtitle:   "看似简单却很强大的定理"
+date:       2020-01-15
+author:     "BilboDai"
+catalog: true
+tags:
+    - probability
+---
+
+### 
+
+
+
+
+
+
+
+
+

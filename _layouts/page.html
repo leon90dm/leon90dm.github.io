@@ -108,6 +108,9 @@ layout: default
                         {% if site.sidebar-about-description %}
                             <p>{{site.sidebar-about-description}}</p>
                         {% endif %}
+                        {% if site.sidebar-email %}
+                            <p>📬: <a href={{site.sidebar-email}}>{{site.sidebar-email}}</a></p>
+                        {% endif %}
                         <!-- SNS Link -->
                         <ul class="list-inline">
                             {% if site.RSS %}
