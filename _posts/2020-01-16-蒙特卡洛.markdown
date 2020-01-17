@@ -1,0 +1,125 @@
+---
+layout:     post
+title:      "蒙特卡洛（MCMC）"
+subtitle:   ""
+date:       2020-01-16
+author:     "BilboDai"
+catalog: true
+tags:
+    - probability
+---
+
+### 求阴影部分面积
+
+<img src="https://tva1.sinaimg.cn/large/006tNbRwly1ga7x0twq7mj30is0egq44.jpg" alt="img" style="zoom: 33%;" />
+
+如果没有微积分的知识，感觉无从下手。
+
+
+
+### 通过蒙特卡洛 近似求 <u>**阴影部分**</u> 面积 $$F$$：
+
+1. 随机生成一个点 $$x$$  得到 $$f(x)$$，如下图。那么面积近似为：$$f(x)\cdot (b-a)$$  这种近似非常的粗略。
+
+   <img src="https://tva1.sinaimg.cn/large/006tNbRwly1ga7x21y35xj30hi0ga0up.jpg" alt="img" style="zoom: 33%;" />
+
+2. 在 $$[a,b]$$ 之间均匀的生成 $$n$$ 个随机点：$$x_1, x_2, \dots x_n$$，如下图：
+
+   ![img](https://tva1.sinaimg.cn/large/006tNbRwly1ga7x3itnh0j30im05wwf7.jpg)
+
+3. 整体阴影面积近似为： $$\frac{1}{n}\sum_i^nf(x_i)\cdot(b-a)$$
+
+
+
+### Basic Monte Carlo Estimator
+
+$$
+\left\langle F^{N}\right\rangle=(b-a) \frac{1}{N} \sum_{i=0}^{N-1} f\left(X_{i}\right)
+$$
+
+
+
+近似的原理为：当 $$N \rightarrow \infty$$ 时， $$\left\langle F^{N}\right\rangle = F$$  的概率为 1：
+
+
+$$
+\operatorname{Pr}\left(\lim _{N \rightarrow \infty}\left\langle F^{N}\right\rangle= F\right)=1
+$$
+
+
+$$N$$ 是样本的大小、 $$X_i$$ 是 $$[a, b]$$ 之间的随机数，这个随机数可以很简单的从下面式子得到：
+
+
+$$
+X_{i}=a+\xi(b-a)
+$$
+
+
+其中 $$\xi$$ 是一个 $$[0,1]$$ 均匀随机发生器。
+
+
+
+👉 式 $$\operatorname{Pr}\left(\lim _{N \rightarrow \infty}\left\langle F^{N}\right\rangle= F\right)=1$$ 的证明如下：
+
+
+$$
+\begin{aligned}
+E\left[\left\langle F^{N}\right\rangle\right] &=E\left[(b-a) \frac{1}{N} \sum_{i=0}^{N-1} f\left(x_{i}\right)\right] \\
+&=(b-a) \frac{1}{N} \sum_{i=0}^{N-1} E[f(x)] \\
+&=(b-a) \frac{1}{N} \sum_{i=0}^{N-1} \int_{a}^{b} f(x)\ pdf[ f(x) ] d x \\
+&=(b-a) \frac{1}{N} \sum_{i=0}^{N-1} \int_{a}^{b} f(x) \frac{1}{b-a} d x \\
+&=\frac{1}{N} \sum_{i=0}^{N-1} \int_{a}^{b} f(x) d x \\
+&=\int_{a}^{b} f(x) d x \\
+&=F
+\end{aligned}
+$$
+
+
+## Generalization Monte Carlo Estimator
+
+$$
+\left\langle F^{N}\right\rangle=\frac{1}{N} \sum_{i=0}^{N-1} \frac{f\left(X_{i}\right)}{p d f\left(X_{i}\right)}
+$$
+
+
+
+证明这个通用的式子：
+
+
+$$
+\begin{aligned}
+F 
+&= \int_{\omega} f(x) dx \\
+&= \int_{\Omega} \underbrace{ \Big[\frac{f(x)}{pdf(x)}\Big] }_{g(x)} pdf(x)\ dx \\
+&= \int_{\Omega} g(x)\ pdf(x) dx \\
+&= E[g(x)] \\
+&= \overbrace{\frac{1}{N}\sum_{i=1}^{N}g(X_i);\ N \rightarrow \infty}^{\text{the law of large numbers}}  \\
+&= \frac{1}{N}\sum_{i=1}^{N}\frac{f(X_i)}{pdf(X_i)}
+\end{aligned}
+$$
+
+
+整个证明过程用到了一个比较取巧的 **随机函数**  $$pdf(x)$$  以及 大数定律。 通过这个通用的式子回头去看 求取面积的过程，更清晰。
+
+
+$$
+\begin{aligned}
+F 
+&= \frac{1}{N}\sum_{i=1}^{N}\frac{f(X_i)}{1/(b-a)} \\
+&= \sum_{i=1}^{N}\frac{(b-a)f(X_i)}{N}
+\end{aligned}
+$$
+
+
+### 那么为什么需要不同的 $$pdf(x)$$ ?
+
+
+
+
+
+
+
+
+
+
+
